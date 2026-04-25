@@ -7,7 +7,7 @@ import { fixVariant } from "./utils/fixVariant";
 import RuleRow from "./RuleRow.vue";
 
 const ruleList = rules as Rule[];
-const { state, filtered, toggleScope, toggleCategory } = useRuleFilters(ruleList);
+const { state, filtered, toggleScope, toggleCategory, reset } = useRuleFilters(ruleList);
 
 const stats = computed(() => {
   const total = ruleList.length;
@@ -122,6 +122,26 @@ const categoryChips = computed(() => {
         <span class="chip-count">{{ c.count }}</span>
       </button>
     </fieldset>
+
+    <div class="toggle-row">
+      <label class="toggle">
+        <input v-model="state.defaultOnly" type="checkbox" />
+        On by default
+      </label>
+      <label class="toggle">
+        <input v-model="state.fixOnly" type="checkbox" />
+        Has fix
+      </label>
+      <label class="toggle">
+        <input v-model="state.hideUnsafe" type="checkbox" />
+        Hide unsafe fixes
+      </label>
+      <label class="toggle">
+        <input v-model="state.typeAwareOnly" type="checkbox" />
+        Type-aware only
+      </label>
+      <button type="button" class="reset" @click="reset">Reset</button>
+    </div>
 
     <div class="result-bar" aria-live="polite">
       Showing {{ filtered.length }} of {{ ruleList.length }} rules
@@ -265,6 +285,54 @@ const categoryChips = computed(() => {
   border-radius: 50%;
   display: inline-block;
   flex-shrink: 0;
+}
+
+.toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  margin: 0.25rem 0 0.75rem;
+  padding: 10px 12px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  background: var(--vp-c-bg-soft);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--vp-c-text-1);
+  cursor: pointer;
+}
+
+.toggle input {
+  cursor: pointer;
+  accent-color: var(--vp-c-brand-1);
+}
+
+.reset {
+  margin-left: auto;
+  font-size: 12.5px;
+  padding: 4px 10px;
+  background: transparent;
+  color: var(--vp-c-text-2);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.reset:hover {
+  border-color: var(--vp-c-brand-2);
+  color: var(--vp-c-brand-1);
+}
+
+.reset:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 2px;
 }
 
 .result-bar {
