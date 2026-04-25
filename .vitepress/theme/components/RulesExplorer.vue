@@ -102,7 +102,8 @@ const categoryChips = computed(() => {
         @click="toggleScope(p.id)"
       >
         {{ p.label }}
-        <span class="chip-count">{{ p.count }}</span>
+        <span class="chip-count" aria-hidden="true">{{ p.count }}</span>
+        <span class="sr-only">{{ p.count }} rules</span>
       </button>
     </fieldset>
 
@@ -117,9 +118,10 @@ const categoryChips = computed(() => {
         :aria-pressed="state.categories.has(c.id)"
         @click="toggleCategory(c.id)"
       >
-        <span class="dot" :style="{ background: CATEGORY_DOT[c.id] }" />
+        <span class="dot" aria-hidden="true" :style="{ background: CATEGORY_DOT[c.id] }" />
         {{ c.id }}
-        <span class="chip-count">{{ c.count }}</span>
+        <span class="chip-count" aria-hidden="true">{{ c.count }}</span>
+        <span class="sr-only">{{ c.count }} rules</span>
       </button>
     </fieldset>
 
@@ -147,10 +149,14 @@ const categoryChips = computed(() => {
       Showing {{ filtered.length }} of {{ ruleList.length }} rules
     </div>
 
-    <div v-if="filtered.length === 0" class="empty">No rules match the current filters.</div>
-    <div v-else class="rule-list">
-      <RuleRow v-for="r in filtered" :key="`${r.scope}/${r.value}`" :rule="r" />
-    </div>
+    <p v-if="filtered.length === 0" class="empty" role="status">
+      No rules match the current filters.
+    </p>
+    <ul v-else class="rule-list" role="list">
+      <li v-for="r in filtered" :key="`${r.scope}/${r.value}`">
+        <RuleRow :rule="r" />
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -342,7 +348,19 @@ const categoryChips = computed(() => {
 }
 
 .rule-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   border-top: 1px solid var(--vp-c-divider);
+}
+
+.rule-list > li {
+  margin: 0;
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.rule-list > li:last-child {
+  border-bottom: none;
 }
 
 .empty {
@@ -350,5 +368,30 @@ const categoryChips = computed(() => {
   text-align: center;
   color: var(--vp-c-text-3);
   font-size: 14px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dark .stat-card,
+.dark .toggle-row {
+  background: var(--vp-c-bg-alt);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip-button,
+  .search input,
+  .reset {
+    transition: none;
+  }
 }
 </style>

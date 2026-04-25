@@ -58,12 +58,7 @@ const href = `/docs/guide/usage/linter/rules/${props.rule.scope}/${props.rule.va
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   padding: 10px 0;
-  border-bottom: 1px solid var(--vp-c-divider);
   align-items: center;
-}
-
-.row:last-child {
-  border-bottom: none;
 }
 
 .rule-name {
