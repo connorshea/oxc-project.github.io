@@ -25,6 +25,10 @@ const href = `/docs/guide/usage/linter/rules/${props.rule.scope}/${props.rule.va
   <div class="row">
     <div class="primary">
       <a :href="href" class="rule-name">{{ pluginDisplay }}/{{ rule.value }}</a>
+      <p class="rule-desc">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+        labore et dolore magna aliqua.
+      </p>
     </div>
     <div class="meta">
       <span class="chip">
@@ -43,8 +47,12 @@ const href = `/docs/guide/usage/linter/rules/${props.rule.scope}/${props.rule.va
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
-  padding: 10px 0;
-  align-items: center;
+  padding: 12px 0;
+  align-items: start;
+}
+
+.primary {
+  min-width: 0;
 }
 
 .rule-name {
@@ -58,6 +66,13 @@ const href = `/docs/guide/usage/linter/rules/${props.rule.scope}/${props.rule.va
 
 .rule-name:hover {
   text-decoration: underline;
+}
+
+.rule-desc {
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+  margin: 3px 0 0;
+  line-height: 1.5;
 }
 
 .meta {
