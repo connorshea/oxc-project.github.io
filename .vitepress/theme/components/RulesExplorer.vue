@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from "vue";
+import { computed, onMounted, ref, watch, type Ref } from "vue";
 import rules from "@data/rules.json" with { type: "json" };
 import type { Category, Rule } from "../types/rules";
 import { useRuleFilters, type TypeAwareMode } from "../composables/useRuleFilters";
@@ -130,6 +130,55 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
   { value: "only", label: "Only" },
   { value: "exclude", label: "Exclude" },
 ];
+
+// Roving-tabindex toolbar pattern: tab into a chip group lands on a
+// single chip, then arrow / Home / End navigate within the group. This
+// drops 22+ tab stops across the filters down to one stop per group.
+// See https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/
+const pluginGroupRef = ref<HTMLElement | null>(null);
+const categoryGroupRef = ref<HTMLElement | null>(null);
+const pluginFocusIdx = ref(0);
+const categoryFocusIdx = ref(0);
+
+const rove = (
+  e: KeyboardEvent,
+  focusIdx: Ref<number>,
+  count: number,
+  container: HTMLElement | null,
+) => {
+  if (!container || count === 0) return;
+  let next = focusIdx.value;
+  switch (e.key) {
+    case "ArrowRight":
+    case "ArrowDown":
+      next = (focusIdx.value + 1) % count;
+      break;
+    case "ArrowLeft":
+    case "ArrowUp":
+      next = (focusIdx.value - 1 + count) % count;
+      break;
+    case "Home":
+      next = 0;
+      break;
+    case "End":
+      next = count - 1;
+      break;
+    default:
+      return;
+  }
+  e.preventDefault();
+  focusIdx.value = next;
+  const buttons = container.querySelectorAll<HTMLElement>("button.chip-button");
+  buttons[next]?.focus();
+};
+
+const handlePluginKeydown = (e: KeyboardEvent) =>
+  rove(e, pluginFocusIdx, pluginChips.value.length, pluginGroupRef.value);
+const handleCategoryKeydown = (e: KeyboardEvent) =>
+  rove(e, categoryFocusIdx, categoryChips.value.length, categoryGroupRef.value);
+
+const focusPlugin = (i: number) => (pluginFocusIdx.value = i);
+const focusCategory = (i: number) => (categoryFocusIdx.value = i);
 </script>
 
 <template>
@@ -149,8 +198,14 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
       />
     </div>
 
-    <fieldset class="chip-group">
-      <legend>
+    <fieldset
+      ref="pluginGroupRef"
+      class="chip-group"
+      role="toolbar"
+      aria-labelledby="rules-plugin-legend"
+      @keydown="handlePluginKeydown"
+    >
+      <legend id="rules-plugin-legend">
         <span>Plugin</span>
         <button
           type="button"
@@ -161,13 +216,18 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
         </button>
       </legend>
       <button
-        v-for="p in pluginChips"
+        v-for="(p, i) in pluginChips"
         :key="p.id"
         type="button"
         class="chip chip-button"
         :class="{ active: state.scopes.has(p.id) }"
         :aria-pressed="state.scopes.has(p.id)"
-        @click="toggleScope(p.id)"
+        :tabindex="pluginFocusIdx === i ? 0 : -1"
+        @click="
+          focusPlugin(i);
+          toggleScope(p.id);
+        "
+        @focus="focusPlugin(i)"
       >
         {{ p.label }}
         <span class="chip-count" aria-hidden="true">{{ p.count }}</span>
@@ -175,16 +235,27 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
       </button>
     </fieldset>
 
-    <fieldset class="chip-group">
-      <legend><span>Category</span></legend>
+    <fieldset
+      ref="categoryGroupRef"
+      class="chip-group"
+      role="toolbar"
+      aria-labelledby="rules-category-legend"
+      @keydown="handleCategoryKeydown"
+    >
+      <legend id="rules-category-legend"><span>Category</span></legend>
       <button
-        v-for="c in categoryChips"
+        v-for="(c, i) in categoryChips"
         :key="c.id"
         type="button"
         class="chip chip-button"
         :class="{ active: state.categories.has(c.id) }"
         :aria-pressed="state.categories.has(c.id)"
-        @click="toggleCategory(c.id)"
+        :tabindex="categoryFocusIdx === i ? 0 : -1"
+        @click="
+          focusCategory(i);
+          toggleCategory(c.id);
+        "
+        @focus="focusCategory(i)"
       >
         <span class="dot" aria-hidden="true" :style="{ background: CATEGORY_DOT[c.id] }" />
         {{ c.id }}
