@@ -28,7 +28,7 @@ const href = `/docs/guide/usage/linter/rules/${props.rule.scope}/${props.rule.va
     </div>
     <div class="meta">
       <span class="chip">
-        <span class="dot" :style="{ background: CATEGORY_DOT[rule.category] }" />
+        <span class="dot" aria-hidden="true" :style="{ background: CATEGORY_DOT[rule.category] }" />
         {{ rule.category }}
       </span>
       <span v-if="fixLabel" class="chip" :class="variantClass">{{ fixLabel }}</span>

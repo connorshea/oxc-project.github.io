@@ -10,10 +10,18 @@ import RuleRow from "./RuleRow.vue";
 const ruleList = rules as Rule[];
 const { state, filtered, toggleScope, toggleCategory, reset } = useRuleFilters(ruleList);
 
+// `pending` rules map to the "planned" variant — the fix isn't actually
+// available yet, so they're excluded from both the headline stat and the
+// "Has fix" filter to match user expectations.
+const hasAvailableFix = (r: Rule) => {
+  const v = fixVariant(r.fix);
+  return v !== null && v !== "planned";
+};
+
 const stats = computed(() => {
   const total = ruleList.length;
   const defaultCount = ruleList.filter((r) => r.default).length;
-  const fixableCount = ruleList.filter((r) => fixVariant(r.fix) !== null).length;
+  const fixableCount = ruleList.filter(hasAvailableFix).length;
   const pluginCount = new Set(ruleList.map((r) => r.scope)).size;
   return { total, defaultCount, fixableCount, pluginCount };
 });

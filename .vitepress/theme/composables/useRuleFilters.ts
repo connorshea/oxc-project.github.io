@@ -1,6 +1,7 @@
 import { computed, reactive, ref } from "vue";
 import type { Category, Rule } from "../types/rules";
 import { fixVariant } from "../components/utils/fixVariant";
+import { displayPlugin } from "../components/utils/ruleUi";
 
 export interface FilterState {
   query: string;
@@ -38,11 +39,18 @@ export function useRuleFilters(rules: Rule[]) {
       if (state.categories.size && !state.categories.has(r.category)) return false;
       if (state.defaultOnly && !r.default) return false;
 
-      if (state.fixOnly && fixVariant(r.fix) === null) return false;
+      if (state.fixOnly) {
+        const v = fixVariant(r.fix);
+        if (v === null || v === "planned") return false;
+      }
       if (state.typeAwareOnly && !r.type_aware) return false;
 
       if (q) {
-        return r.value.toLowerCase().includes(q) || r.scope.toLowerCase().includes(q);
+        return (
+          r.value.toLowerCase().includes(q) ||
+          r.scope.toLowerCase().includes(q) ||
+          displayPlugin(r.scope).toLowerCase().includes(q)
+        );
       }
       return true;
     });
