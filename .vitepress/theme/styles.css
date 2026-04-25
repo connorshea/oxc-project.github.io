@@ -15,6 +15,17 @@
   --color-brand: #0d6a73;
 }
 
+/* The rules explorer is a wide list, not prose: relax the doc-content
+ * width caps so the chip filters and rule rows have room to breathe. */
+.rules-explorer-page .VPDoc.has-aside .content-container {
+  max-width: none;
+}
+
+.rules-explorer-page .VPDoc:not(.has-sidebar) .content,
+.rules-explorer-page .VPDoc:not(.has-sidebar) .container {
+  max-width: none;
+}
+
 /*  Override unusual GitHub avatars */
 .VPTeamMembersItem {
   --member-item-avatar-size-small: 64px;
