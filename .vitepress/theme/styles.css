@@ -20,7 +20,7 @@
   outline-offset: 2px;
 }
 
-.vp-code-group .tabs input:focus-visible + label {
+.vp-code-group:has(.tabs input:focus-visible) {
   outline: 2px solid var(--color-brand);
   outline-offset: 2px;
 }
