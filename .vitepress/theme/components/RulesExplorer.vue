@@ -135,10 +135,6 @@ const categoryChips = computed(() => {
         Has fix
       </label>
       <label class="toggle">
-        <input v-model="state.hideUnsafe" type="checkbox" />
-        Hide unsafe fixes
-      </label>
-      <label class="toggle">
         <input v-model="state.typeAwareOnly" type="checkbox" />
         Type-aware only
       </label>

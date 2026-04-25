@@ -26,7 +26,7 @@ export const fixVariant = (fix: RawFix): FixVariant | null => {
 export const FIX_LABEL: Record<FixVariant, string> = {
   auto: "auto-fix",
   "auto-unsafe": "auto-fix · unsafe",
-  suggest: "suggest",
-  "suggest-unsafe": "suggest · unsafe",
+  suggest: "suggestion",
+  "suggest-unsafe": "suggestion · unsafe",
   planned: "fix planned",
 };

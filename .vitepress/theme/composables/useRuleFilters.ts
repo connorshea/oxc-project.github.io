@@ -8,7 +8,6 @@ export interface FilterState {
   categories: Set<Category>;
   defaultOnly: boolean;
   fixOnly: boolean;
-  hideUnsafe: boolean;
   typeAwareOnly: boolean;
 }
 
@@ -19,7 +18,6 @@ export function useRuleFilters(rules: Rule[]) {
     categories: new Set<Category>(),
     defaultOnly: false,
     fixOnly: false,
-    hideUnsafe: false,
     typeAwareOnly: false,
   });
 
@@ -40,11 +38,7 @@ export function useRuleFilters(rules: Rule[]) {
       if (state.categories.size && !state.categories.has(r.category)) return false;
       if (state.defaultOnly && !r.default) return false;
 
-      const variant = fixVariant(r.fix);
-      if (state.fixOnly && variant === null) return false;
-      if (state.hideUnsafe && (variant === "auto-unsafe" || variant === "suggest-unsafe")) {
-        return false;
-      }
+      if (state.fixOnly && fixVariant(r.fix) === null) return false;
       if (state.typeAwareOnly && !r.type_aware) return false;
 
       if (q) {
@@ -70,7 +64,6 @@ export function useRuleFilters(rules: Rule[]) {
     state.categories.clear();
     state.defaultOnly = false;
     state.fixOnly = false;
-    state.hideUnsafe = false;
     state.typeAwareOnly = false;
     bump();
   };
