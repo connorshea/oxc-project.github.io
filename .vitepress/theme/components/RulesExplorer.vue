@@ -4,6 +4,7 @@ import rules from "@data/rules.json" with { type: "json" };
 import type { Category, Rule } from "../types/rules";
 import { useRuleFilters } from "../composables/useRuleFilters";
 import { fixVariant } from "./utils/fixVariant";
+import RuleRow from "./RuleRow.vue";
 
 const ruleList = rules as Rule[];
 const { state, filtered, toggleScope, toggleCategory } = useRuleFilters(ruleList);
@@ -124,6 +125,11 @@ const categoryChips = computed(() => {
 
     <div class="result-bar" aria-live="polite">
       Showing {{ filtered.length }} of {{ ruleList.length }} rules
+    </div>
+
+    <div v-if="filtered.length === 0" class="empty">No rules match the current filters.</div>
+    <div v-else class="rule-list">
+      <RuleRow v-for="r in filtered" :key="`${r.scope}/${r.value}`" :rule="r" />
     </div>
   </div>
 </template>
@@ -264,6 +270,17 @@ const categoryChips = computed(() => {
 .result-bar {
   font-size: 13px;
   color: var(--vp-c-text-2);
-  margin: 0.5rem 0 1rem;
+  margin: 0.5rem 0 0.5rem;
+}
+
+.rule-list {
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+.empty {
+  padding: 2rem 0;
+  text-align: center;
+  color: var(--vp-c-text-3);
+  font-size: 14px;
 }
 </style>
