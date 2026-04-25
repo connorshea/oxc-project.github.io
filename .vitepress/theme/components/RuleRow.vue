@@ -7,9 +7,9 @@ const props = defineProps<{ rule: Rule }>();
 
 const variant = fixVariant(props.rule.fix);
 const variantClass =
-  variant === "auto"
+  variant === "auto" || variant === "mixed"
     ? "chip-safe"
-    : variant === "auto-unsafe" || variant === "suggest-unsafe"
+    : variant === "auto-unsafe" || variant === "suggest-unsafe" || variant === "mixed-unsafe"
       ? "chip-unsafe"
       : variant === "suggest"
         ? "chip-info"

@@ -17,7 +17,15 @@ export type RawFix =
   | "conditional_dangerous_fix_or_suggestion";
 
 // Coarser semantic grouping used by the UI to colour fix chips.
-export type FixVariant = "auto" | "auto-unsafe" | "suggest" | "suggest-unsafe" | "planned";
+// `mixed` kinds expose both an auto-fix and a suggestion.
+export type FixVariant =
+  | "auto"
+  | "auto-unsafe"
+  | "suggest"
+  | "suggest-unsafe"
+  | "mixed"
+  | "mixed-unsafe"
+  | "planned";
 
 export type Category =
   | "correctness"
