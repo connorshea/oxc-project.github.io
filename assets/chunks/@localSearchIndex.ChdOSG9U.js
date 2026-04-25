@@ -1,0 +1,1 @@
+import{t as e}from"./preload-helper.DCPPsC_B.js";var t={root:()=>e(()=>import(`./@localSearchIndexroot.DSd57km9.js`),[])};export{t as default};
