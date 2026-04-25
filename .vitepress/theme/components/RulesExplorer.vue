@@ -4,6 +4,7 @@ import rules from "@data/rules.json" with { type: "json" };
 import type { Category, Rule } from "../types/rules";
 import { useRuleFilters } from "../composables/useRuleFilters";
 import { fixVariant } from "./utils/fixVariant";
+import { CATEGORY_DOT, displayPlugin } from "./utils/ruleUi";
 import RuleRow from "./RuleRow.vue";
 
 const ruleList = rules as Rule[];
@@ -17,17 +18,12 @@ const stats = computed(() => {
   return { total, defaultCount, fixableCount, pluginCount };
 });
 
-const PLUGIN_DISPLAY: Record<string, string> = {
-  jsx_a11y: "jsx-a11y",
-  react_perf: "react-perf",
-};
-
 const pluginChips = computed(() => {
   const counts = new Map<string, number>();
   for (const r of ruleList) counts.set(r.scope, (counts.get(r.scope) ?? 0) + 1);
   return [...counts.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([id, count]) => ({ id, label: PLUGIN_DISPLAY[id] ?? id, count }));
+    .map(([id, count]) => ({ id, label: displayPlugin(id), count }));
 });
 
 const CATEGORY_ORDER: Category[] = [
@@ -39,16 +35,6 @@ const CATEGORY_ORDER: Category[] = [
   "style",
   "nursery",
 ];
-
-const CATEGORY_DOT: Record<Category, string> = {
-  correctness: "#E24B4A",
-  suspicious: "#BA7517",
-  perf: "#639922",
-  restriction: "#888780",
-  pedantic: "#7F77DD",
-  style: "#378ADD",
-  nursery: "#A05195",
-};
 
 const categoryChips = computed(() => {
   const counts = new Map<Category, number>();

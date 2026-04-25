@@ -1,23 +1,9 @@
 <script setup lang="ts">
-import type { Category, Rule } from "../types/rules";
+import type { Rule } from "../types/rules";
 import { FIX_LABEL, fixVariant } from "./utils/fixVariant";
+import { CATEGORY_DOT, displayPlugin } from "./utils/ruleUi";
 
 const props = defineProps<{ rule: Rule }>();
-
-const PLUGIN_DISPLAY: Record<string, string> = {
-  jsx_a11y: "jsx-a11y",
-  react_perf: "react-perf",
-};
-
-const CATEGORY_DOT: Record<Category, string> = {
-  correctness: "#E24B4A",
-  suspicious: "#BA7517",
-  perf: "#639922",
-  restriction: "#888780",
-  pedantic: "#7F77DD",
-  style: "#378ADD",
-  nursery: "#A05195",
-};
 
 const variant = fixVariant(props.rule.fix);
 const variantClass =
@@ -31,7 +17,7 @@ const variantClass =
           ? "chip-muted"
           : "";
 const fixLabel = variant ? FIX_LABEL[variant] : null;
-const pluginDisplay = PLUGIN_DISPLAY[props.rule.scope] ?? props.rule.scope;
+const pluginDisplay = displayPlugin(props.rule.scope);
 const href = `/docs/guide/usage/linter/rules/${props.rule.scope}/${props.rule.value}`;
 </script>
 
