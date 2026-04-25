@@ -89,31 +89,24 @@ const href = `/docs/guide/usage/linter/rules/${props.rule.scope}/${props.rule.va
   border: 1px solid var(--vp-c-divider);
 }
 
-/* Mirror the colours used by Alert.vue on individual rule pages so a
- * "default" badge matches the success banner and a "fix" or
- * "type-aware" badge matches the info banner. */
+/* Match the Alert banners on individual rule pages by hue (success
+ * green, info blue), but render as flat coloured text on the chip's
+ * default surface so small chips don't look like washed-out
+ * rectangles against a dark page. */
 .chip-success {
-  background: #e5f0e5;
-  border-color: #b7e1a1;
   color: #2c662d;
 }
 
 .chip-info {
-  background: #f0f4f9;
-  border-color: #a1c0e1;
   color: #2c4d66;
 }
 
-:global(.dark) .chip-success {
-  background: #2c662d;
-  border-color: #b7e1a1;
-  color: #f0f9eb;
+.dark .chip-success {
+  color: #b7e1a1;
 }
 
-:global(.dark) .chip-info {
-  background: #2c4d66;
-  border-color: #a1c0e1;
-  color: #f0f4f9;
+.dark .chip-info {
+  color: #a1c0e1;
 }
 
 .dot {
