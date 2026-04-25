@@ -203,17 +203,19 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
         <input v-model="state.fixOnly" type="checkbox" />
         Has fix
       </label>
-      <fieldset class="segmented" aria-label="Type-aware rules">
+      <fieldset class="segmented">
         <legend>Type-aware</legend>
-        <label
-          v-for="opt in TYPE_AWARE_OPTIONS"
-          :key="opt.value"
-          class="segment"
-          :class="{ active: state.typeAware === opt.value }"
-        >
-          <input v-model="state.typeAware" type="radio" name="type-aware" :value="opt.value" />
-          {{ opt.label }}
-        </label>
+        <div class="segment-track" role="presentation">
+          <label
+            v-for="opt in TYPE_AWARE_OPTIONS"
+            :key="opt.value"
+            class="segment"
+            :class="{ active: state.typeAware === opt.value }"
+          >
+            <input v-model="state.typeAware" type="radio" name="type-aware" :value="opt.value" />
+            <span>{{ opt.label }}</span>
+          </label>
+        </div>
       </fieldset>
       <button type="button" class="reset" @click="reset">Reset</button>
     </div>
@@ -395,48 +397,60 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
 .segmented {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   border: none;
   margin: 0;
   padding: 0;
+  /* Override Chrome's default min-inline-size for fieldsets so the
+     control sits flush in the toggle row instead of stretching. */
+  min-inline-size: auto;
 }
 
 .segmented legend {
+  float: none;
   font-size: 13px;
   color: var(--vp-c-text-1);
-  margin-right: 4px;
   padding: 0;
+}
+
+.segment-track {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--vp-c-bg);
 }
 
 .segment {
   display: inline-flex;
   align-items: center;
   font-size: 12.5px;
-  padding: 3px 9px;
-  border-radius: 6px;
-  border: 1px solid var(--vp-c-divider);
-  background: var(--vp-c-bg);
+  padding: 3px 10px;
   color: var(--vp-c-text-2);
   cursor: pointer;
   transition:
     background-color 0.12s,
-    border-color 0.12s,
     color 0.12s;
 }
 
-.segment:hover {
-  border-color: var(--vp-c-brand-2);
+.segment + .segment {
+  border-left: 1px solid var(--vp-c-divider);
+}
+
+.segment:hover:not(.active) {
+  color: var(--vp-c-text-1);
+  background: var(--vp-c-bg-soft);
 }
 
 .segment.active {
   background: var(--vp-c-brand-soft);
-  border-color: var(--vp-c-brand-1);
   color: var(--vp-c-brand-1);
 }
 
 .segment:focus-within {
   outline: 2px solid var(--vp-c-brand-1);
-  outline-offset: 2px;
+  outline-offset: -2px;
 }
 
 .segment input {
