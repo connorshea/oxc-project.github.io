@@ -23,8 +23,7 @@ const stats = computed(() => {
   const total = ruleList.length;
   const defaultCount = ruleList.filter((r) => r.default).length;
   const fixableCount = ruleList.filter(hasAvailableFix).length;
-  const pluginCount = new Set(ruleList.map((r) => r.scope)).size;
-  return { total, defaultCount, fixableCount, pluginCount };
+  return { total, defaultCount, fixableCount };
 });
 
 const pluginChips = computed(() => {
@@ -131,24 +130,11 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
 
 <template>
   <div class="explorer">
-    <div class="stat-cards">
-      <div class="stat-card">
-        <div class="stat-value">{{ stats.total }}</div>
-        <div class="stat-label">total rules</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">{{ stats.defaultCount }}</div>
-        <div class="stat-label">on by default</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">{{ stats.fixableCount }}</div>
-        <div class="stat-label">with fixes</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">{{ stats.pluginCount }}</div>
-        <div class="stat-label">plugins</div>
-      </div>
-    </div>
+    <ul class="stats">
+      <li>Total number of rules: {{ stats.total }}</li>
+      <li>Rules turned on by default: {{ stats.defaultCount }}</li>
+      <li>Rules with fixes available: {{ stats.fixableCount }}</li>
+    </ul>
 
     <div class="search">
       <input
@@ -240,34 +226,16 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
   margin-top: 1rem;
 }
 
-.stat-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin-bottom: 1.25rem;
-}
-
-.stat-card {
-  padding: 14px 16px;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
-  background: var(--vp-c-bg-soft);
-}
-
-.stat-value {
-  font-size: 26px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
+.stats {
+  margin: 0 0 1.25rem;
+  padding-left: 1.25rem;
+  font-size: 14px;
   color: var(--vp-c-text-1);
-  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 
-.stat-label {
-  font-size: 12px;
-  color: var(--vp-c-text-2);
-  margin-top: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.stats li {
+  margin: 0.15rem 0;
 }
 
 .search {
@@ -524,7 +492,6 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
   border: 0;
 }
 
-.dark .stat-card,
 .dark .toggle-row {
   background: var(--vp-c-bg-alt);
 }
