@@ -20,6 +20,11 @@
   outline-offset: 2px;
 }
 
+.vp-code-group .tabs input:focus-visible + label {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
 /*  Override unusual GitHub avatars */
 .VPTeamMembersItem {
   --member-item-avatar-size-small: 64px;
