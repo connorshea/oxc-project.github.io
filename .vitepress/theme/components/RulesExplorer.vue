@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, watch } from "vue";
 import rules from "@data/rules.json" with { type: "json" };
 import type { Category, Rule } from "../types/rules";
 import { useRuleFilters } from "../composables/useRuleFilters";
@@ -9,6 +9,7 @@ import RuleRow from "./RuleRow.vue";
 
 const ruleList = rules as Rule[];
 const { state, filtered, toggleScope, toggleCategory, reset } = useRuleFilters(ruleList);
+const validScopes = new Set(ruleList.map((r) => r.scope));
 
 // `pending` rules map to the "planned" variant — the fix isn't actually
 // available yet, so they're excluded from both the headline stat and the
@@ -51,6 +52,69 @@ const categoryChips = computed(() => {
     id,
     count: counts.get(id) ?? 0,
   }));
+});
+
+// Sync filter state to and from the URL so people can bookmark or
+// share a filtered view. Both directions live in onMounted because
+// `window` doesn't exist during SSR; the initial render reflects
+// default state and is hydrated to the URL state on mount.
+const VALID_CATEGORIES = new Set<Category>(CATEGORY_ORDER);
+
+const splitParam = (raw: string | null): string[] =>
+  raw
+    ? raw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+
+onMounted(() => {
+  const params = new URLSearchParams(window.location.search);
+
+  const q = params.get("q");
+  if (q) state.query = q;
+
+  for (const id of splitParam(params.get("scope"))) {
+    if (validScopes.has(id)) toggleScope(id);
+  }
+  for (const id of splitParam(params.get("category"))) {
+    if (VALID_CATEGORIES.has(id as Category)) toggleCategory(id as Category);
+  }
+
+  if (params.get("default") === "true") state.defaultOnly = true;
+  if (params.get("fix") === "true") state.fixOnly = true;
+  if (params.get("type_aware") === "true") state.typeAwareOnly = true;
+
+  watch(
+    () => [
+      state.query,
+      [...state.scopes].sort().join(","),
+      [...state.categories].sort().join(","),
+      state.defaultOnly,
+      state.fixOnly,
+      state.typeAwareOnly,
+    ],
+    ([query, scopes, categories, defaultOnly, fixOnly, typeAwareOnly]) => {
+      const next = new URLSearchParams(window.location.search);
+
+      const setOrDelete = (key: string, value: string | boolean) => {
+        if (value === true) next.set(key, "true");
+        else if (typeof value === "string" && value) next.set(key, value);
+        else next.delete(key);
+      };
+
+      setOrDelete("q", query as string);
+      setOrDelete("scope", scopes as string);
+      setOrDelete("category", categories as string);
+      setOrDelete("default", defaultOnly as boolean);
+      setOrDelete("fix", fixOnly as boolean);
+      setOrDelete("type_aware", typeAwareOnly as boolean);
+
+      const search = next.toString();
+      const url = window.location.pathname + (search ? `?${search}` : "") + window.location.hash;
+      window.history.replaceState(null, "", url);
+    },
+  );
 });
 </script>
 
