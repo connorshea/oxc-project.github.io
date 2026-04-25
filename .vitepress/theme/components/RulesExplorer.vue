@@ -8,8 +8,12 @@ import { CATEGORY_DOT, displayPlugin } from "./utils/ruleUi";
 import RuleRow from "./RuleRow.vue";
 
 const ruleList = rules as Rule[];
-const { state, filtered, toggleScope, toggleCategory, reset } = useRuleFilters(ruleList);
+const { state, filtered, toggleScope, toggleCategory, selectAllScopes, clearScopes, reset } =
+  useRuleFilters(ruleList);
 const validScopes = new Set(ruleList.map((r) => r.scope));
+const allScopesSelected = computed(
+  () => state.scopes.size > 0 && state.scopes.size === validScopes.size,
+);
 
 // `pending` rules map to the "planned" variant — the fix isn't actually
 // available yet, so they're excluded from both the headline stat and the
@@ -146,7 +150,16 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
     </div>
 
     <fieldset class="chip-group">
-      <legend>Plugin</legend>
+      <legend>
+        <span>Plugin</span>
+        <button
+          type="button"
+          class="legend-action"
+          @click="allScopesSelected ? clearScopes() : selectAllScopes()"
+        >
+          {{ allScopesSelected ? "Clear" : "Select all" }}
+        </button>
+      </legend>
       <button
         v-for="p in pluginChips"
         :key="p.id"
@@ -163,7 +176,7 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
     </fieldset>
 
     <fieldset class="chip-group">
-      <legend>Category</legend>
+      <legend><span>Category</span></legend>
       <button
         v-for="c in categoryChips"
         :key="c.id"
@@ -264,7 +277,7 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
 .chip-group {
   border: none;
   padding: 0;
-  margin: 0 0 0.75rem;
+  margin: 0 0 1rem;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -272,13 +285,39 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
 }
 
 .chip-group legend {
-  width: 70px;
-  flex: 0 0 70px;
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--vp-c-text-3);
+}
+
+.legend-action {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--vp-c-brand-1);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.legend-action:hover {
+  text-decoration: underline;
+}
+
+.legend-action:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .chip {
@@ -360,6 +399,12 @@ const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
 .toggle input {
   cursor: pointer;
   accent-color: var(--vp-c-brand-1);
+}
+
+.toggle input:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .segmented {

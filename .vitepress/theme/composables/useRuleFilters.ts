@@ -73,6 +73,17 @@ export function useRuleFilters(rules: Rule[]) {
     bump();
   };
 
+  const selectAllScopes = () => {
+    state.scopes.clear();
+    for (const r of rules) state.scopes.add(r.scope);
+    bump();
+  };
+
+  const clearScopes = () => {
+    state.scopes.clear();
+    bump();
+  };
+
   const reset = () => {
     state.query = "";
     state.scopes.clear();
@@ -83,5 +94,13 @@ export function useRuleFilters(rules: Rule[]) {
     bump();
   };
 
-  return { state, filtered, toggleCategory, toggleScope, reset };
+  return {
+    state,
+    filtered,
+    toggleCategory,
+    toggleScope,
+    selectAllScopes,
+    clearScopes,
+    reset,
+  };
 }
