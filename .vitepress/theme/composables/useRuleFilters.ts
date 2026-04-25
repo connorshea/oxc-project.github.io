@@ -5,7 +5,7 @@ import { displayPlugin } from "../components/utils/ruleUi";
 
 export interface FilterState {
   query: string;
-  scope: string | null;
+  scopes: Set<string>;
   categories: Set<Category>;
   defaultOnly: boolean;
   fixOnly: boolean;
@@ -15,16 +15,16 @@ export interface FilterState {
 export function useRuleFilters(rules: Rule[]) {
   const state = reactive<FilterState>({
     query: "",
-    scope: null,
+    scopes: new Set<string>(),
     categories: new Set<Category>(),
     defaultOnly: false,
     fixOnly: false,
     typeAwareOnly: false,
   });
 
-  // `categories` lives on a reactive object, but Set mutations don't always
-  // trigger downstream computeds when accessed via destructuring; keep a
-  // bumped revision to force re-evaluation when callers mutate the Set.
+  // `scopes` and `categories` live on a reactive object, but Set mutations
+  // don't always trigger downstream computeds when accessed via destructuring;
+  // keep a bumped revision to force re-evaluation when callers mutate them.
   const revision = ref(0);
   const bump = () => {
     revision.value += 1;
@@ -35,7 +35,7 @@ export function useRuleFilters(rules: Rule[]) {
     const q = state.query.trim().toLowerCase();
 
     return rules.filter((r) => {
-      if (state.scope && r.scope !== state.scope) return false;
+      if (state.scopes.size && !state.scopes.has(r.scope)) return false;
       if (state.categories.size && !state.categories.has(r.category)) return false;
       if (state.defaultOnly && !r.default) return false;
 
@@ -63,12 +63,14 @@ export function useRuleFilters(rules: Rule[]) {
   };
 
   const toggleScope = (id: string) => {
-    state.scope = state.scope === id ? null : id;
+    if (state.scopes.has(id)) state.scopes.delete(id);
+    else state.scopes.add(id);
+    bump();
   };
 
   const reset = () => {
     state.query = "";
-    state.scope = null;
+    state.scopes.clear();
     state.categories.clear();
     state.defaultOnly = false;
     state.fixOnly = false;

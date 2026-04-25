@@ -91,8 +91,8 @@ const categoryChips = computed(() => {
         :key="p.id"
         type="button"
         class="chip chip-button"
-        :class="{ active: state.scope === p.id }"
-        :aria-pressed="state.scope === p.id"
+        :class="{ active: state.scopes.has(p.id) }"
+        :aria-pressed="state.scopes.has(p.id)"
         @click="toggleScope(p.id)"
       >
         {{ p.label }}
