@@ -2,7 +2,7 @@
 import { computed, onMounted, watch } from "vue";
 import rules from "@data/rules.json" with { type: "json" };
 import type { Category, Rule } from "../types/rules";
-import { useRuleFilters } from "../composables/useRuleFilters";
+import { useRuleFilters, type TypeAwareMode } from "../composables/useRuleFilters";
 import { fixVariant } from "./utils/fixVariant";
 import { CATEGORY_DOT, displayPlugin } from "./utils/ruleUi";
 import RuleRow from "./RuleRow.vue";
@@ -83,7 +83,8 @@ onMounted(() => {
 
   if (params.get("default") === "true") state.defaultOnly = true;
   if (params.get("fix") === "true") state.fixOnly = true;
-  if (params.get("type_aware") === "true") state.typeAwareOnly = true;
+  const ta = params.get("type_aware");
+  if (ta === "only" || ta === "exclude") state.typeAware = ta;
 
   watch(
     () => [
@@ -92,9 +93,9 @@ onMounted(() => {
       [...state.categories].sort().join(","),
       state.defaultOnly,
       state.fixOnly,
-      state.typeAwareOnly,
+      state.typeAware,
     ],
-    ([query, scopes, categories, defaultOnly, fixOnly, typeAwareOnly]) => {
+    ([query, scopes, categories, defaultOnly, fixOnly, typeAware]) => {
       const next = new URLSearchParams(window.location.search);
 
       const setOrDelete = (key: string, value: string | boolean) => {
@@ -108,7 +109,11 @@ onMounted(() => {
       setOrDelete("category", categories as string);
       setOrDelete("default", defaultOnly as boolean);
       setOrDelete("fix", fixOnly as boolean);
-      setOrDelete("type_aware", typeAwareOnly as boolean);
+      // "include" is the default and stays absent from the URL.
+      setOrDelete(
+        "type_aware",
+        (typeAware as TypeAwareMode) === "include" ? "" : (typeAware as string),
+      );
 
       const search = next.toString();
       const url = window.location.pathname + (search ? `?${search}` : "") + window.location.hash;
@@ -116,6 +121,12 @@ onMounted(() => {
     },
   );
 });
+
+const TYPE_AWARE_OPTIONS: { value: TypeAwareMode; label: string }[] = [
+  { value: "include", label: "Include" },
+  { value: "only", label: "Only" },
+  { value: "exclude", label: "Exclude" },
+];
 </script>
 
 <template>
@@ -192,10 +203,18 @@ onMounted(() => {
         <input v-model="state.fixOnly" type="checkbox" />
         Has fix
       </label>
-      <label class="toggle">
-        <input v-model="state.typeAwareOnly" type="checkbox" />
-        Type-aware only
-      </label>
+      <fieldset class="segmented" aria-label="Type-aware rules">
+        <legend>Type-aware</legend>
+        <label
+          v-for="opt in TYPE_AWARE_OPTIONS"
+          :key="opt.value"
+          class="segment"
+          :class="{ active: state.typeAware === opt.value }"
+        >
+          <input v-model="state.typeAware" type="radio" name="type-aware" :value="opt.value" />
+          {{ opt.label }}
+        </label>
+      </fieldset>
       <button type="button" class="reset" @click="reset">Reset</button>
     </div>
 
@@ -371,6 +390,61 @@ onMounted(() => {
 .toggle input {
   cursor: pointer;
   accent-color: var(--vp-c-brand-1);
+}
+
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.segmented legend {
+  font-size: 13px;
+  color: var(--vp-c-text-1);
+  margin-right: 4px;
+  padding: 0;
+}
+
+.segment {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12.5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-2);
+  cursor: pointer;
+  transition:
+    background-color 0.12s,
+    border-color 0.12s,
+    color 0.12s;
+}
+
+.segment:hover {
+  border-color: var(--vp-c-brand-2);
+}
+
+.segment.active {
+  background: var(--vp-c-brand-soft);
+  border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+}
+
+.segment:focus-within {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 2px;
+}
+
+.segment input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .reset {

@@ -3,13 +3,17 @@ import type { Category, Rule } from "../types/rules";
 import { fixVariant } from "../components/utils/fixVariant";
 import { displayPlugin } from "../components/utils/ruleUi";
 
+// Type-aware filter has three states: include (no constraint),
+// only (require type_aware), exclude (drop type_aware rules).
+export type TypeAwareMode = "include" | "only" | "exclude";
+
 export interface FilterState {
   query: string;
   scopes: Set<string>;
   categories: Set<Category>;
   defaultOnly: boolean;
   fixOnly: boolean;
-  typeAwareOnly: boolean;
+  typeAware: TypeAwareMode;
 }
 
 export function useRuleFilters(rules: Rule[]) {
@@ -19,7 +23,7 @@ export function useRuleFilters(rules: Rule[]) {
     categories: new Set<Category>(),
     defaultOnly: false,
     fixOnly: false,
-    typeAwareOnly: false,
+    typeAware: "include",
   });
 
   // `scopes` and `categories` live on a reactive object, but Set mutations
@@ -43,7 +47,8 @@ export function useRuleFilters(rules: Rule[]) {
         const v = fixVariant(r.fix);
         if (v === null || v === "planned") return false;
       }
-      if (state.typeAwareOnly && !r.type_aware) return false;
+      if (state.typeAware === "only" && !r.type_aware) return false;
+      if (state.typeAware === "exclude" && r.type_aware) return false;
 
       if (q) {
         return (
@@ -74,7 +79,7 @@ export function useRuleFilters(rules: Rule[]) {
     state.categories.clear();
     state.defaultOnly = false;
     state.fixOnly = false;
-    state.typeAwareOnly = false;
+    state.typeAware = "include";
     bump();
   };
 
