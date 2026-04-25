@@ -1,5 +1,6 @@
 ---
 editLink: false
+pageClass: rules-explorer-page
 ---
 
 # Rules
