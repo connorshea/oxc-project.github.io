@@ -5,17 +5,10 @@ import { CATEGORY_DOT, displayPlugin } from "./utils/ruleUi";
 
 const props = defineProps<{ rule: Rule }>();
 
+// Match the Alert banners on the per-rule page: every fix kind shares
+// the "info" alert, so every fix chip uses the info variant. The text
+// label (e.g. "auto-fix · unsafe") still distinguishes the kind.
 const variant = fixVariant(props.rule.fix);
-const variantClass =
-  variant === "auto" || variant === "mixed"
-    ? "chip-safe"
-    : variant === "auto-unsafe" || variant === "suggest-unsafe" || variant === "mixed-unsafe"
-      ? "chip-unsafe"
-      : variant === "suggest"
-        ? "chip-info"
-        : variant === "planned"
-          ? "chip-muted"
-          : "";
 const fixLabel = variant ? FIX_LABEL[variant] : null;
 const pluginDisplay = displayPlugin(props.rule.scope);
 const href = `/docs/guide/usage/linter/rules/${props.rule.scope}/${props.rule.value}`;
@@ -35,9 +28,9 @@ const href = `/docs/guide/usage/linter/rules/${props.rule.scope}/${props.rule.va
         <span class="dot" aria-hidden="true" :style="{ background: CATEGORY_DOT[rule.category] }" />
         {{ rule.category }}
       </span>
-      <span v-if="fixLabel" class="chip" :class="variantClass">{{ fixLabel }}</span>
-      <span v-if="rule.default" class="chip chip-info">default</span>
-      <span v-if="rule.type_aware" class="chip chip-muted">type-aware</span>
+      <span v-if="fixLabel" class="chip chip-info">{{ fixLabel }}</span>
+      <span v-if="rule.default" class="chip chip-success">default</span>
+      <span v-if="rule.type_aware" class="chip chip-info">type-aware</span>
     </div>
   </div>
 </template>
@@ -96,28 +89,31 @@ const href = `/docs/guide/usage/linter/rules/${props.rule.scope}/${props.rule.va
   border: 1px solid var(--vp-c-divider);
 }
 
-.chip-safe {
-  background: var(--vp-c-green-soft);
-  color: var(--vp-c-green-1);
-  border-color: transparent;
-}
-
-.chip-unsafe {
-  background: var(--vp-c-yellow-soft);
-  color: var(--vp-c-yellow-1);
-  border-color: transparent;
+/* Mirror the colours used by Alert.vue on individual rule pages so a
+ * "default" badge matches the success banner and a "fix" or
+ * "type-aware" badge matches the info banner. */
+.chip-success {
+  background: #e5f0e5;
+  border-color: #b7e1a1;
+  color: #2c662d;
 }
 
 .chip-info {
-  background: var(--vp-c-brand-soft);
-  color: var(--vp-c-brand-1);
-  border-color: transparent;
+  background: #f0f4f9;
+  border-color: #a1c0e1;
+  color: #2c4d66;
 }
 
-.chip-muted {
-  background: var(--vp-c-bg-soft);
-  color: var(--vp-c-text-3);
-  border-color: transparent;
+:global(.dark) .chip-success {
+  background: #2c662d;
+  border-color: #b7e1a1;
+  color: #f0f9eb;
+}
+
+:global(.dark) .chip-info {
+  background: #2c4d66;
+  border-color: #a1c0e1;
+  color: #f0f4f9;
 }
 
 .dot {
